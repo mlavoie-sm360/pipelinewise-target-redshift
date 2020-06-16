@@ -88,6 +88,8 @@ def column_type(schema_property, with_length=True):
         if column_type == 'character varying' and varchar_length > 0:
             column_type = '{}({})'.format(column_type, varchar_length)
 
+    logger.debug(f"schema_property: {schema_property} -> column_type: {column_type}")
+
     return column_type
 
 
