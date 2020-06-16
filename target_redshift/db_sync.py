@@ -13,6 +13,7 @@ import psycopg2.extras
 import inflection
 from singer import get_logger
 
+logger = get_logger('target_redshift')
 
 DEFAULT_VARCHAR_LENGTH = 10000
 SHORT_VARCHAR_LENGTH = 256
@@ -70,7 +71,15 @@ def column_type(schema_property, with_length=True):
         column_type = 'character varying'
         varchar_length = LONG_VARCHAR_LENGTH
     elif 'integer' in property_type:
-        column_type = 'numeric'
+        if 'maximum' in schema_property:
+            if schema_property['maximum'] <= 32767:
+                column_type = 'smallint'
+            elif schema_property['maximum'] <= 2147483647:
+                column_type = 'integer'
+            elif schema_property['maximum'] <= 9223372036854775807:
+                column_type = 'bigint'
+        else:
+            column_type = 'numeric'
     elif 'boolean' in property_type:
         column_type = 'boolean'
 
